@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Выбор формата — CareerPilot AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; }
+    </style>
+</head>
+<body class="bg-zinc-950 text-white min-h-screen">
+
+    <!-- Header -->
+    <header class="border-b border-zinc-800 bg-zinc-900 py-5">
+        <div class="max-w-5xl mx-auto px-4 md:px-6 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl font-bold text-emerald-400">CP</span>
+                <span class="font-semibold">CareerPilot AI</span>
+            </div>
+            <a href="/dashboard/" class="text-zinc-400 hover:text-white">← Назад в кабинет</a>
+        </div>
+    </header>
+
+    <div class="max-w-3xl mx-auto px-4 md:px-6 py-8 md:py-12">
+        <h1 class="text-3xl md:text-4xl font-bold text-center mb-3">Новая симуляция</h1>
+        <p class="text-zinc-400 text-center text-lg mb-12">Выбери формат, который тебе сейчас нужен</p>
+
+        <div class="space-y-6">
+            <!-- Full Interview -->
+            <div onclick="selectCard(this)" class="simulation-card bg-zinc-900 hover:bg-zinc-800 border border-transparent hover:border-emerald-500 rounded-3xl p-8 cursor-pointer transition-all">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-2xl font-semibold mb-2">Полное интервью</h3>
+                        <p class="text-zinc-400">45–60 минут • Все типы вопросов</p>
+                    </div>
+                    <div class="text-emerald-400 text-4xl">🎯</div>
+                </div>
+            </div>
+
+            <!-- Live Coding -->
+            <div onclick="selectCard(this)" class="simulation-card bg-zinc-900 hover:bg-zinc-800 border border-transparent hover:border-emerald-500 rounded-3xl p-8 cursor-pointer transition-all">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-2xl font-semibold mb-2">Только Live-coding</h3>
+                        <p class="text-zinc-400">30–60 минут • Практика кода</p>
+                    </div>
+                    <div class="text-emerald-400 text-4xl">💻</div>
+                </div>
+            </div>
+
+            <!-- System Design -->
+            <div onclick="selectCard(this)" class="simulation-card bg-zinc-900 hover:bg-zinc-800 border border-transparent hover:border-emerald-500 rounded-3xl p-8 cursor-pointer transition-all">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-2xl font-semibold mb-2">System Design</h3>
+                        <p class="text-zinc-400">30–60 минут • Архитектура</p>
+                    </div>
+                    <div class="text-emerald-400 text-4xl">🏗️</div>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="startSimulation()"
+                class="w-full mt-12 bg-emerald-500 hover:bg-emerald-600 py-5 rounded-3xl font-semibold text-xl transition-all">
+            Запустить симуляцию
+        </button>
+    </div>
+
+    <script>
+        function selectCard(card) {
+            document.querySelectorAll('.simulation-card').forEach(c => {
+                c.classList.remove('border-emerald-500', 'bg-zinc-800');
+            });
+            card.classList.add('border-emerald-500', 'bg-zinc-800');
+        }
+
+        function startSimulation() {
+            window.location.href = "/create-simulation/";
+        }
+    </script>
+
+</body>
+</html>

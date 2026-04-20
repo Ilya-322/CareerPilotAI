@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новая симуляция — CareerPilot AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-zinc-950 text-white min-h-screen">
+
+    <div class="max-w-2xl mx-auto px-4 md:px-6 py-8 md:py-12">
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-bold mb-3">Новая симуляция</h1>
+            <p class="text-zinc-400">Выбери параметры интервью</p>
+        </div>
+
+        <form method="post" class="bg-zinc-900 rounded-3xl p-8 md:p-10">
+            {% csrf_token %}
+
+            {% if form.errors %}
+                <div class="bg-red-900/50 border border-red-700 text-red-300 p-5 rounded-2xl mb-8">
+                    <p class="font-medium mb-2">Пожалуйста, исправьте следующие ошибки:</p>
+                    {{ form.errors }}
+                </div>
+            {% endif %}
+
+            <!-- Тип симуляции -->
+            <div class="mb-10">
+                <label class="block text-zinc-400 text-lg mb-5">Тип симуляции</label>
+                <div class="grid grid-cols-1 gap-4">
+                    <label class="flex items-center gap-4 p-6 bg-zinc-800 hover:bg-zinc-700 rounded-2xl cursor-pointer border border-transparent hover:border-emerald-500">
+                        <input type="radio" name="type" value="full" class="w-5 h-5 accent-emerald-500" required>
+                        <div>
+                            <div class="font-semibold text-lg">Полное интервью</div>
+                            <div class="text-zinc-400 text-sm">45–60 минут • Все типы вопросов</div>
+                        </div>
+                    </label>
+
+                    <label class="flex items-center gap-4 p-6 bg-zinc-800 hover:bg-zinc-700 rounded-2xl cursor-pointer border border-transparent hover:border-emerald-500">
+                        <input type="radio" name="type" value="live_coding" class="w-5 h-5 accent-emerald-500">
+                        <div>
+                            <div class="font-semibold text-lg">Только Live-coding</div>
+                            <div class="text-zinc-400 text-sm">30–60 минут • Практика кода</div>
+                        </div>
+                    </label>
+
+                    <label class="flex items-center gap-4 p-6 bg-zinc-800 hover:bg-zinc-700 rounded-2xl cursor-pointer border border-transparent hover:border-emerald-500">
+                        <input type="radio" name="type" value="system_design" class="w-5 h-5 accent-emerald-500">
+                        <div>
+                            <div class="font-semibold text-lg">System Design</div>
+                            <div class="text-zinc-400 text-sm">30–60 минут • Архитектура</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Уровень -->
+            <div class="mb-10">
+                <label class="block text-zinc-400 text-lg mb-5">Твой уровень</label>
+                <div class="grid grid-cols-3 gap-4">
+                    <label class="text-center p-6 bg-zinc-800 hover:bg-zinc-700 rounded-2xl cursor-pointer border border-transparent hover:border-emerald-500">
+                        <input type="radio" name="level" value="junior" class="w-5 h-5 accent-emerald-500 mb-3" required>
+                        <div class="font-semibold">Junior</div>
+                    </label>
+                    <label class="text-center p-6 bg-zinc-800 hover:bg-zinc-700 rounded-2xl cursor-pointer border border-transparent hover:border-emerald-500">
+                        <input type="radio" name="level" value="junior_plus" class="w-5 h-5 accent-emerald-500 mb-3">
+                        <div class="font-semibold">Junior+</div>
+                    </label>
+                    <label class="text-center p-6 bg-zinc-800 hover:bg-zinc-700 rounded-2xl cursor-pointer border border-transparent hover:border-emerald-500">
+                        <input type="radio" name="level" value="middle" class="w-5 h-5 accent-emerald-500 mb-3">
+                        <div class="font-semibold">Middle</div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Стек -->
+            <div class="mb-10">
+                <label class="block text-zinc-400 text-lg mb-3">Основной стек</label>
+                <select name="stack" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500" required>
+                    <option value="">Выберите стек</option>
+                    <option value="python">Python</option>
+                    <option value="java">Java</option>
+                    <option value="javascript">JavaScript / TypeScript</option>
+                    <option value="go">Go</option>
+                    <option value="csharp">C#</option>
+                </select>
+            </div>
+
+            <!-- Длительность -->
+            <div class="mb-10">
+                <label class="block text-zinc-400 text-lg mb-3">Длительность симуляции</label>
+                <select name="duration_minutes" id="duration_minutes"
+                        class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500" required>
+                </select>
+            </div>
+
+            <button type="submit"
+                    class="w-full mt-8 bg-emerald-500 hover:bg-emerald-600 py-6 rounded-3xl font-semibold text-xl transition-all">
+                Запустить симуляцию
+            </button>
+        </form>
+
+        <div class="text-center mt-8">
+            <a href="/dashboard/" class="text-zinc-500 hover:text-zinc-400">← Вернуться в кабинет</a>
+        </div>
+    </div>
+
+    <script>
+        const durationSelect = document.getElementById('duration_minutes');
+
+        function updateDurationOptions(type) {
+            if (type === 'full') {
+                durationSelect.innerHTML = `
+                    <option value="45">45 минут</option>
+                    <option value="50">50 минут</option>
+                    <option value="55">55 минут</option>
+                    <option value="60" selected>60 минут</option>
+                `;
+            } else {
+                durationSelect.innerHTML = `
+                    <option value="30">30 минут</option>
+                    <option value="35">35 минут</option>
+                    <option value="40">40 минут</option>
+                    <option value="45">45 минут</option>
+                    <option value="50">50 минут</option>
+                    <option value="55">55 минут</option>
+                    <option value="60" selected>60 минут</option>
+                `;
+            }
+        }
+
+        document.querySelectorAll('input[name="type"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                updateDurationOptions(this.value);
+            });
+        });
+
+        window.addEventListener('load', () => {
+            const fullRadio = document.querySelector('input[name="type"][value="full"]');
+            if (fullRadio) {
+                fullRadio.checked = true;
+                updateDurationOptions('full');
+            }
+        });
+    </script>
+</body>
+</html>

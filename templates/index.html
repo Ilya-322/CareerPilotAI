@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>CareerPilot AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.25rem !important;
+                line-height: 1.2 !important;
+            }
+            .hero-subtitle {
+                font-size: 1.125rem !important;
+            }
+            .cta-buttons {
+                flex-direction: column !important;
+                width: 100% !important;
+            }
+            .cta-button {
+                width: 100% !important;
+                text-align: center !important;
+                padding: 0.875rem 1.5rem !important;
+                font-size: 1rem !important;
+            }
+            .nav-links {
+                gap: 1rem !important;
+            }
+            .logo-text {
+                font-size: 1.25rem !important;
+            }
+            .badge-text {
+                font-size: 0.75rem !important;
+                padding: 0.25rem 0.75rem !important;
+            }
+        }
+
+        /* Better touch targets */
+        button, a, .clickable {
+            cursor: pointer;
+            touch-action: manipulation;
+            transition: all 0.2s ease;
+        }
+
+        a:active, button:active {
+            transform: scale(0.97);
+        }
+
+        /* Prevent zoom on double-tap for iOS */
+        * {
+            touch-action: manipulation;
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-white">
+
+    <!-- Top Navigation - Mobile optimized -->
+    <nav class="border-b border-zinc-800 bg-zinc-900 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 md:px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2 md:gap-3">
+                <span class="text-2xl md:text-3xl font-bold text-emerald-400">CP</span>
+                <span class="logo-text font-semibold text-lg md:text-2xl tracking-tight">CareerPilot AI</span>
+            </div>
+
+            <div class="nav-links flex items-center gap-4 md:gap-6">
+                <a href="/login/" class="text-zinc-400 hover:text-white transition-colors font-medium text-sm md:text-base py-2 px-2 active:scale-95">
+                    Войти
+                </a>
+                <a href="/register/"
+                   class="bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 px-4 md:px-6 py-2 md:py-3 rounded-xl md:rounded-2xl font-semibold transition-all text-sm md:text-base shadow-lg active:scale-95">
+                    Зарегистрироваться
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section - Mobile first -->
+    <div class="min-h-screen bg-gradient-to-br from-zinc-900 via-blue-950 to-zinc-950 flex items-center py-12 md:py-0">
+        <div class="max-w-5xl mx-auto px-5 md:px-6 text-center">
+            <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 md:px-5 py-2 rounded-full mb-6 md:mb-8">
+                <div class="w-2 h-2 md:w-3 md:h-3 bg-emerald-400 rounded-full animate-pulse"></div>
+                <span class="badge-text font-medium tracking-wide text-xs md:text-sm">AI Interview Simulator</span>
+            </div>
+
+            <h1 class="hero-title text-3xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6 md:mb-8 px-2">
+                Подготовься к собеседованию.<br>
+                <span class="text-emerald-400">По-настоящему.</span>
+            </h1>
+
+            <p class="hero-subtitle text-base md:text-2xl text-zinc-400 max-w-3xl mx-auto mb-8 md:mb-12 px-2">
+                Реалистичные симуляции технических интервью с ИИ.<br class="hidden md:block">
+                Честная оценка и персональные рекомендации.
+            </p>
+
+            <div class="cta-buttons flex flex-col sm:flex-row gap-3 md:gap-4 justify-center px-2">
+                <a href="/login/"
+                   class="cta-button inline-block border border-zinc-600 hover:border-zinc-400 text-base md:text-lg font-semibold px-6 md:px-10 py-3 md:py-5 rounded-2xl md:rounded-3xl transition-all text-center active:scale-95">
+                    Войти в аккаунт
+                </a>
+
+                <a href="/register/"
+                   class="cta-button inline-block bg-emerald-500 hover:bg-emerald-600 text-base md:text-lg font-semibold px-6 md:px-10 py-3 md:py-5 rounded-2xl md:rounded-3xl transition-all text-center active:scale-95">
+                    Зарегистрироваться
+                </a>
+            </div>
+
+            <p class="mt-12 md:mt-16 text-zinc-500 text-xs md:text-sm">
+                Уже используют более 1200 разработчиков
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Add haptic feedback on mobile (if supported)
+        if ('vibrate' in navigator) {
+            const clickables = document.querySelectorAll('a, button');
+            clickables.forEach(el => {
+                el.addEventListener('click', () => {
+                    navigator.vibrate(10);
+                });
+            });
+        }
+    </script>
+</body>
+</html>

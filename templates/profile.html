@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль — CareerPilot AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-zinc-950 text-white min-h-screen">
+
+    <!-- Header -->
+    <header class="border-b border-zinc-800 bg-zinc-900">
+        <div class="max-w-6xl mx-auto px-4 md:px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl font-bold text-emerald-400">CP</span>
+                <span class="font-semibold text-xl">CareerPilot AI</span>
+            </div>
+            <a href="/dashboard/" class="text-zinc-400 hover:text-white">← Назад в кабинет</a>
+        </div>
+    </header>
+
+    <div class="max-w-2xl mx-auto px-4 md:px-6 py-8 md:py-12">
+        <h1 class="text-3xl md:text-4xl font-bold mb-2">Профиль</h1>
+        <p class="text-zinc-400 mb-10">Здесь можно изменить свои данные</p>
+
+        <form method="post" class="bg-zinc-900 rounded-3xl p-8 md:p-10">
+            {% csrf_token %}
+
+            <div class="space-y-8">
+                <!-- Логин -->
+                <div>
+                    <label class="block text-zinc-400 text-lg mb-3">Логин (имя пользователя)</label>
+                    <input type="text" name="username" value="{{ form.username.value|default:'' }}"
+                           class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 focus:outline-none focus:border-emerald-500 text-white" required>
+                </div>
+
+                <!-- ФИО -->
+                <div>
+                    <label class="block text-zinc-400 text-lg mb-3">ФИО</label>
+                    <input type="text" name="full_name" value="{{ form.full_name.value|default:'' }}"
+                           class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 focus:outline-none focus:border-emerald-500 text-white">
+                </div>
+
+                <!-- Уровень -->
+                <div>
+                    <label class="block text-zinc-400 text-lg mb-3">Уровень разработчика</label>
+                    <div class="grid grid-cols-3 gap-4">
+                        <label class="flex items-center gap-3 p-4 bg-zinc-800 rounded-2xl cursor-pointer hover:bg-zinc-700">
+                            <input type="radio" name="experience_level" value="junior"
+                                   {% if form.experience_level.value == 'junior' %}checked{% endif %}>
+                            <span class="text-sm md:text-base">Junior</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-4 bg-zinc-800 rounded-2xl cursor-pointer hover:bg-zinc-700">
+                            <input type="radio" name="experience_level" value="junior_plus"
+                                   {% if form.experience_level.value == 'junior_plus' %}checked{% endif %}>
+                            <span class="text-sm md:text-base">Junior+</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-4 bg-zinc-800 rounded-2xl cursor-pointer hover:bg-zinc-700">
+                            <input type="radio" name="experience_level" value="middle"
+                                   {% if form.experience_level.value == 'middle' %}checked{% endif %}>
+                            <span class="text-sm md:text-base">Middle</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Стек -->
+                <div>
+                    <label class="block text-zinc-400 text-lg mb-3">Основной стек</label>
+                    <select name="main_stack" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 focus:outline-none focus:border-emerald-500 text-white">
+                        <option value="python" {% if form.main_stack.value == 'python' %}selected{% endif %}>Python</option>
+                        <option value="java" {% if form.main_stack.value == 'java' %}selected{% endif %}>Java</option>
+                        <option value="javascript" {% if form.main_stack.value == 'javascript' %}selected{% endif %}>JavaScript / TypeScript</option>
+                        <option value="go" {% if form.main_stack.value == 'go' %}selected{% endif %}>Go</option>
+                        <option value="csharp" {% if form.main_stack.value == 'csharp' %}selected{% endif %}>C#</option>
+                    </select>
+                </div>
+
+                <!-- Целевая должность -->
+                <div>
+                    <label class="block text-zinc-400 text-lg mb-3">Целевая должность</label>
+                    <input type="text" name="target_position" value="{{ form.target_position.value|default:'' }}"
+                           class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 focus:outline-none focus:border-emerald-500 text-white">
+                </div>
+            </div>
+
+            <button type="submit"
+                    class="w-full mt-12 bg-emerald-500 hover:bg-emerald-600 py-5 rounded-3xl font-semibold text-xl transition-all">
+                Сохранить изменения
+            </button>
+        </form>
+    </div>
+
+</body>
+</html>

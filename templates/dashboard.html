@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Dashboard — CareerPilot AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column !important;
+                gap: 1rem !important;
+                align-items: stretch !important;
+            }
+            .user-actions {
+                flex-wrap: wrap !important;
+                justify-content: space-between !important;
+                gap: 0.75rem !important;
+            }
+            .stat-card {
+                padding: 1.5rem !important;
+            }
+            .stat-number {
+                font-size: 3rem !important;
+            }
+            .simulation-card {
+                padding: 1.25rem !important;
+            }
+            .action-grid {
+                gap: 1rem !important;
+            }
+            .action-card {
+                padding: 1.25rem !important;
+            }
+            .action-card h3 {
+                font-size: 1.25rem !important;
+            }
+            .greeting-text {
+                font-size: 1.5rem !important;
+            }
+            .subtitle-text {
+                font-size: 0.875rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+            .btn-mobile-full {
+                width: 100% !important;
+                text-align: center !important;
+            }
+        }
+
+        /* Better touch targets */
+        a, button, .clickable {
+            cursor: pointer;
+            touch-action: manipulation;
+            transition: all 0.2s ease;
+        }
+
+        a:active, button:active, .clickable:active {
+            transform: scale(0.97);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #3f3f46;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #10b981;
+            border-radius: 10px;
+        }
+
+        /* Prevent zoom on double-tap iOS */
+        * {
+            touch-action: manipulation;
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-white min-h-screen">
+
+    <!-- Header - Mobile optimized -->
+    <header class="border-b border-zinc-800 bg-zinc-900 sticky top-0 z-50 shadow-lg">
+        <div class="max-w-6xl mx-auto px-4 md:px-6 py-3 md:py-4">
+            <div class="dashboard-header flex justify-between items-center md:flex-row flex-col gap-3">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl font-bold text-emerald-400">CP</span>
+                    <span class="font-semibold text-lg md:text-xl">CareerPilot AI</span>
+                </div>
+
+                <div class="user-actions flex items-center gap-3 md:gap-6 flex-wrap">
+                    <span class="text-zinc-400 text-sm md:text-base">
+                        Привет, {{ user.get_full_name|default:user.username }}!
+                    </span>
+
+                    <a href="/profile/" class="text-zinc-400 hover:text-white transition-colors font-medium text-sm md:text-base px-2 py-1 active:scale-95">
+                        Профиль
+                    </a>
+
+                    <a href="/create-simulation/"
+                       class="bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 px-4 md:px-6 py-2 md:py-3 rounded-xl md:rounded-2xl font-medium transition-all text-sm md:text-base shadow-md active:scale-95">
+                        Новая симуляция
+                    </a>
+
+                    <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="text-zinc-400 hover:text-red-400 transition-colors font-medium text-sm md:text-base px-2 py-1 active:scale-95">
+                            Выйти
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-10">
+        <h1 class="greeting-text text-2xl md:text-4xl font-bold mb-1">Добро пожаловать обратно, {{ user.get_full_name|default:user.username }}</h1>
+        <p class="subtitle-text text-zinc-400 text-sm md:text-lg mb-6 md:mb-10">Вот как обстоят твои дела</p>
+
+        <!-- Статистика за неделю - Mobile card -->
+        <div class="stat-card bg-zinc-900 rounded-2xl md:rounded-3xl p-6 md:p-10 mb-8 md:mb-12 text-center shadow-xl">
+            <p class="text-zinc-400 text-base md:text-lg mb-1">На этой неделе</p>
+            <div class="stat-number text-5xl md:text-7xl font-bold text-emerald-400 mb-1">{{ simulations_this_week }}</div>
+            <p class="text-emerald-500 font-medium text-sm md:text-base">симуляций завершено</p>
+        </div>
+
+        <!-- Последние симуляции -->
+        <div class="mb-8 md:mb-10">
+            <div class="flex justify-between items-center mb-4 md:mb-6">
+                <h2 class="text-xl md:text-2xl font-semibold">Последние симуляции</h2>
+                <a href="/create-simulation/" class="text-emerald-400 hover:text-emerald-500 text-sm font-medium active:scale-95 px-2 py-1">
+                    + Новая
+                </a>
+            </div>
+
+            {% if recent_simulations %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    {% for sim in recent_simulations %}
+                    <a href="/results/{{ sim.simulation_id }}/"
+                       class="simulation-card bg-zinc-900 hover:bg-zinc-800 transition-all rounded-2xl md:rounded-3xl p-5 md:p-8 cursor-pointer shadow-lg active:scale-98">
+                        <div class="flex justify-between items-start gap-3">
+                            <div class="flex-1">
+                                <div class="font-semibold text-base md:text-lg">{{ sim.get_type_display }}</div>
+                                <div class="text-xs md:text-sm text-zinc-400 mt-1">{{ sim.get_level_display }} • {{ sim.stack }}</div>
+                                <div class="text-xs text-zinc-500 mt-2 md:mt-3">{{ sim.started_at|date:"d.m.Y H:i" }}</div>
+                            </div>
+                            <div class="text-right">
+                                <span class="inline-block bg-emerald-600 text-white text-xs md:text-sm font-medium px-3 md:px-4 py-1 rounded-full whitespace-nowrap">
+                                    Завершена
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="bg-zinc-900 rounded-2xl md:rounded-3xl p-8 md:p-12 text-center">
+                    <p class="text-zinc-400 text-base md:text-lg mb-2">Пока нет завершённых симуляций</p>
+                    <p class="text-xs md:text-sm text-zinc-500">После прохождения первой симуляции здесь появится история ваших результатов</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Быстрые действия - Mobile grid -->
+        <div class="action-grid grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            <a href="/create-simulation/"
+               class="action-card bg-zinc-900 hover:bg-zinc-800 transition-all rounded-2xl md:rounded-3xl p-5 md:p-8 cursor-pointer shadow-lg active:scale-98">
+                <h3 class="text-xl md:text-2xl font-semibold mb-2">Новая симуляция</h3>
+                <p class="text-zinc-400 text-sm md:text-base">Практика интервью под реальным таймером</p>
+            </a>
+
+            <a href="/profile/"
+               class="action-card bg-zinc-900 hover:bg-zinc-800 transition-all rounded-2xl md:rounded-3xl p-5 md:p-8 cursor-pointer shadow-lg active:scale-98">
+                <h3 class="text-xl md:text-2xl font-semibold mb-2">Мой профиль</h3>
+                <p class="text-zinc-400 text-sm md:text-base">Редактировать данные и настройки</p>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Add haptic feedback on mobile (if supported)
+        if ('vibrate' in navigator) {
+            const clickables = document.querySelectorAll('a, button, .cursor-pointer');
+            clickables.forEach(el => {
+                el.addEventListener('click', () => {
+                    navigator.vibrate(10);
+                });
+            });
+        }
+
+        // Optional: Add a simple toast for logout confirmation (if needed)
+        const logoutBtn = document.querySelector('form[action*="logout"] button');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', (e) => {
+                if (!confirm('Вы уверены, что хотите выйти?')) {
+                    e.preventDefault();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

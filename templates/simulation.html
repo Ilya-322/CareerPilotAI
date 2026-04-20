@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Симуляция — CareerPilot AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .code-editor {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 1rem;
+            line-height: 1.5;
+            resize: none;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .timer-text {
+                font-size: 1.5rem !important;
+            }
+            .question-text {
+                font-size: 1.125rem !important;
+                line-height: 1.5 !important;
+            }
+            .action-buttons {
+                flex-direction: column-reverse !important;
+                gap: 0.75rem !important;
+            }
+            .nav-buttons {
+                flex-direction: column !important;
+                gap: 0.75rem !important;
+            }
+            .main-card {
+                padding: 1.25rem !important;
+            }
+            .header-content {
+                flex-direction: column !important;
+                gap: 1rem !important;
+                align-items: stretch !important;
+            }
+            .stats-container {
+                justify-content: space-around !important;
+                width: 100% !important;
+            }
+            .stat-item {
+                text-align: center !important;
+            }
+            .button-full {
+                width: 100% !important;
+                justify-content: center !important;
+            }
+            select {
+                font-size: 16px !important; /* Prevents zoom on iOS */
+            }
+            button {
+                min-height: 48px !important;
+                cursor: pointer;
+            }
+        }
+
+        /* Better touch targets */
+        button, select, .clickable {
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Loading state */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        /* Custom scrollbar for mobile */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #3f3f46;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #10b981;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-white min-h-screen">
+
+    <!-- Header - Optimized for mobile -->
+    <header class="bg-zinc-900 border-b border-zinc-800 py-3 sticky top-0 z-50 shadow-lg">
+        <div class="max-w-6xl mx-auto px-4 md:px-6">
+            <div class="header-content flex justify-between items-center md:flex-row flex-col gap-3">
+                <div class="flex items-center gap-3 w-full md:w-auto">
+                    <span class="text-emerald-400 font-bold text-2xl md:text-3xl">CP</span>
+                    <div>
+                        <div class="font-semibold text-base md:text-lg">Симуляция интервью</div>
+                        <div class="text-xs text-zinc-500">
+                            {{ simulation.get_type_display }} • {{ simulation.get_level_display }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-container flex items-center gap-6 md:gap-10 w-full md:w-auto justify-between">
+                    <div class="stat-item text-right">
+                        <div class="text-[10px] md:text-xs text-zinc-400 uppercase tracking-widest">Осталось времени</div>
+                        <div id="timer" class="timer-text text-2xl md:text-4xl font-mono font-bold text-emerald-400">00:00</div>
+                    </div>
+
+                    <div class="stat-item text-right">
+                        <div class="text-[10px] md:text-xs text-zinc-400 uppercase tracking-widest">Вопрос</div>
+                        <div class="text-2xl md:text-4xl font-bold">
+                            <span id="current-q">1</span>
+                            <span class="text-zinc-500 text-xl md:text-2xl">/ {{ questions|length|default:1 }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-10">
+        <div class="main-card bg-zinc-900 rounded-2xl md:rounded-3xl p-5 md:p-10">
+
+            <!-- Progress bar for mobile -->
+            <div class="md:hidden mb-6">
+                <div class="flex justify-between text-xs text-zinc-400 mb-2">
+                    <span>Прогресс</span>
+                    <span id="progress-percent">0%</span>
+                </div>
+                <div class="w-full bg-zinc-800 rounded-full h-2 overflow-hidden">
+                    <div id="progress-bar" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Вопрос -->
+            <div class="mb-8 md:mb-12">
+                <div class="flex items-center gap-3 mb-3 md:mb-4">
+                    <span class="bg-emerald-500 text-black text-xs font-bold px-3 py-1 rounded-full">
+                        Вопрос <span id="q-number">1</span>
+                    </span>
+                </div>
+                <p id="question-text" class="question-text text-lg md:text-xl leading-relaxed text-zinc-100"></p>
+            </div>
+
+            <!-- Выбор варианта -->
+            <div class="mb-8 md:mb-10">
+                <label class="block text-zinc-400 text-base md:text-lg mb-3">Выбери правильный вариант ответа</label>
+                <select id="answerSelect" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl md:rounded-3xl px-5 md:px-6 py-4 md:py-5 text-white text-base md:text-lg focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all">
+                </select>
+            </div>
+
+            <!-- Кнопки - Mobile first layout -->
+            <div class="action-buttons flex md:flex-row flex-col-reverse gap-3 md:gap-4">
+                <div class="nav-buttons flex md:flex-row flex-col gap-3 flex-1">
+                    <button onclick="prevQuestion()" id="btn-prev" class="button-full px-6 md:px-8 py-3 md:py-4 bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-600 border border-zinc-600 rounded-2xl md:rounded-3xl font-semibold transition-all transform active:scale-95">
+                        ← Предыдущий
+                    </button>
+
+                    <button onclick="nextQuestion()" id="btn-next" class="button-full px-6 md:px-8 py-3 md:py-4 bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-600 border border-zinc-600 rounded-2xl md:rounded-3xl font-semibold transition-all transform active:scale-95">
+                        Следующий →
+                    </button>
+                </div>
+
+                <div class="flex md:flex-row flex-col gap-3 flex-1">
+                    <button onclick="saveAnswer()" class="button-full px-6 md:px-10 py-3 md:py-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-2xl md:rounded-3xl font-semibold transition-all transform active:scale-95">
+                        💾 Сохранить
+                    </button>
+
+                    <button onclick="finishSimulation()" class="button-full px-6 md:px-10 py-3 md:py-4 bg-red-600 hover:bg-red-700 active:bg-red-800 rounded-2xl md:rounded-3xl font-semibold transition-all transform active:scale-95">
+                        ✓ Завершить
+                    </button>
+                </div>
+            </div>
+
+            <!-- Toast notification for mobile -->
+            <div id="toast" class="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:bottom-4 bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 shadow-xl transform transition-all duration-300 translate-y-full opacity-0 pointer-events-none z-50">
+                <div class="flex items-center gap-2">
+                    <span id="toast-icon">✅</span>
+                    <span id="toast-message" class="text-sm">Сохранено</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {% for q in questions %}
+                {
+                    "id": "{{ q.question_id }}",
+                    "description": "{{ q.description|escapejs }}",
+                    "options": {{ q.options|safe }},
+                    "correct": "{{ q.correct_answer }}"
+                }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        let currentIndex = 0;
+        let timeLeft = {{ simulation.duration_minutes|default:45 }} * 60;
+        let answers = {};
+        let isLoading = false;
+        let timerInterval;
+
+        const timerEl = document.getElementById('timer');
+        const questionTextEl = document.getElementById('question-text');
+        const answerSelect = document.getElementById('answerSelect');
+        const currentQEl = document.getElementById('current-q');
+        const qNumberEl = document.getElementById('q-number');
+        const progressBar = document.getElementById('progress-bar');
+        const progressPercent = document.getElementById('progress-percent');
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMessage.textContent = message;
+            toastIcon.textContent = isError ? '❌' : '✅';
+            toast.classList.remove('translate-y-full', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-full', 'opacity-0');
+            }, 2000);
+        }
+
+        function updateTimer() {
+            let min = Math.floor(timeLeft / 60);
+            let sec = timeLeft % 60;
+            timerEl.textContent = `${min}:${sec.toString().padStart(2, '0')}`;
+
+            // Warning when time is low
+            if (timeLeft <= 300 && timeLeft > 0) {
+                timerEl.classList.add('text-yellow-400');
+                timerEl.classList.remove('text-emerald-400');
+            } else if (timeLeft <= 0) {
+                timerEl.classList.add('text-red-400');
+            } else {
+                timerEl.classList.add('text-emerald-400');
+                timerEl.classList.remove('text-yellow-400', 'text-red-400');
+            }
+        }
+
+        function updateProgress() {
+            if (questions.length === 0) return;
+            const percent = ((currentIndex + 1) / questions.length) * 100;
+            if (progressBar) {
+                progressBar.style.width = `${percent}%`;
+            }
+            if (progressPercent) {
+                progressPercent.textContent = `${Math.round(percent)}%`;
+            }
+        }
+
+        function showQuestion() {
+            if (questions.length === 0) return;
+            const q = questions[currentIndex];
+
+            questionTextEl.textContent = q.description;
+
+            answerSelect.innerHTML = '<option value="">— Выберите вариант —</option>';
+            q.options.forEach(option => {
+                const opt = document.createElement('option');
+                opt.value = option[0];
+                opt.textContent = option;
+                answerSelect.appendChild(opt);
+            });
+
+            answerSelect.value = answers[q.id] || '';
+
+            currentQEl.textContent = currentIndex + 1;
+            qNumberEl.textContent = currentIndex + 1;
+
+            updateProgress();
+
+            // Show/hide navigation buttons
+            const prevBtn = document.getElementById('btn-prev');
+            const nextBtn = document.getElementById('btn-next');
+
+            if (prevBtn) {
+                prevBtn.style.display = (currentIndex === 0) ? 'none' : 'flex';
+            }
+            if (nextBtn) {
+                nextBtn.style.display = (currentIndex === questions.length - 1) ? 'none' : 'flex';
+            }
+        }
+
+        async function saveAnswer(showToastMessage = true) {
+            if (isLoading) return;
+            if (questions.length === 0) return;
+
+            const q = questions[currentIndex];
+            const selectedAnswer = answerSelect.value;
+
+            if (!selectedAnswer) {
+                showToast('Пожалуйста, выберите ответ', true);
+                return;
+            }
+
+            answers[q.id] = selectedAnswer;
+            isLoading = true;
+
+            // Add loading state to button
+            const saveBtn = document.querySelector('button[onclick="saveAnswer()"]');
+            const originalText = saveBtn.textContent;
+            saveBtn.textContent = '⏳ Сохранение...';
+            saveBtn.disabled = true;
+
+            try {
+                const response = await fetch('/save-answer/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        simulation_id: '{{ simulation.simulation_id }}',
+                        question_id: q.id,
+                        answer: selectedAnswer
+                    })
+                });
+
+                if (response.ok) {
+                    if (showToastMessage) {
+                        showToast(`Ответ сохранён для вопроса ${currentIndex + 1}`);
+                    }
+                } else {
+                    showToast('❌ Ошибка сохранения', true);
+                }
+            } catch (error) {
+                console.error('Error saving answer:', error);
+                showToast('❌ Ошибка соединения', true);
+            } finally {
+                isLoading = false;
+                saveBtn.textContent = originalText;
+                saveBtn.disabled = false;
+            }
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0 && !isLoading) {
+                currentIndex--;
+                showQuestion();
+                // Auto-save current answer when navigating
+                // Uncomment next line if you want auto-save
+                // saveAnswer(false);
+            }
+        }
+
+        function nextQuestion() {
+            if (currentIndex < questions.length - 1 && !isLoading) {
+                // Validate before moving
+                if (!answerSelect.value) {
+                    showToast('Пожалуйста, выберите ответ перед продолжением', true);
+                    return;
+                }
+                currentIndex++;
+                showQuestion();
+                // Auto-save current answer when navigating
+                // saveAnswer(false);
+            }
+        }
+
+        function finishSimulation() {
+            if (confirm("Завершить симуляцию и посмотреть результаты?")) {
+                window.location.href = `/results/{{ simulation.simulation_id }}/`;
+            }
+        }
+
+        // Handle timer
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateTimer();
+                } else {
+                    clearInterval(timerInterval);
+                    showToast('⏰ Время вышло! Симуляция будет завершена');
+                    setTimeout(() => {
+                        finishSimulation();
+                    }, 2000);
+                }
+            }, 1000);
+        }
+
+        // Auto-save on select change
+        answerSelect.addEventListener('change', () => {
+            saveAnswer(false);
+        });
+
+        // Prevent zoom on double tap (iOS)
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        // Initialize
+        window.onload = function() {
+            updateTimer();
+            showQuestion();
+            startTimer();
+
+            // Add haptic feedback on mobile (if supported)
+            if ('vibrate' in navigator) {
+                const buttons = document.querySelectorAll('button');
+                buttons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        navigator.vibrate(10);
+                    });
+                });
+            }
+        };
+
+        // Cleanup on page unload
+        window.onbeforeunload = function() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+        };
+    </script>
+
+</body>
+</html>
